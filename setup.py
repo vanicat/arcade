@@ -3,6 +3,23 @@ import sys
 from os import path
 from setuptools import find_namespace_packages, setup
 
+
+# Build with : python setup.py build_ext -i --use-cython
+ext_modules = []
+if '--use-cython' in sys.argv:
+    sys.argv.remove('--use-cython')
+    from Cython.Build import cythonize
+    ext_modules = cythonize(
+        [
+            "arcade/sprite_list/spatial_hash_c.pyx",
+            # "arcade/sprite_list/spatial_hash.py",
+            # "arcade/sprite_list/sprite_list.py",
+            # "arcade/sprite.py",
+        ],
+        compiler_directives={'language_level' : "3"},
+    )
+
+
 with open("arcade/version.py") as file:
     exec(file.read())
 
@@ -22,6 +39,7 @@ setup(
     license="MIT",
     url="https://api.arcade.academy",
     download_url="https://api.arcade.academy",
+    ext_modules=ext_modules,
     install_requires=[
         "pyglet==2.0.dev13",
         "pillow~=9.0.0",
