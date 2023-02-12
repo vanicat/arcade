@@ -299,6 +299,8 @@ from .sprite import SpriteCircle
 from .sprite import SpriteSolidColor
 from .sprite import get_distance_between_sprites
 
+from .new_sprite import SimpleSprite
+
 from .sprite_list import SpriteList
 from .sprite_list import check_for_collision
 from .sprite_list import check_for_collision_with_list
