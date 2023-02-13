@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
-from arcade import Texture, load_texture
+from arcade import Texture
 from arcade.arcade_types import RGBA, Point
 
 if TYPE_CHECKING:
@@ -15,7 +15,8 @@ class SimpleSprite:
 
     def __init__(
         self,
-        texture_or_path: Union[Texture, str],
+        texture: Texture,
+        *,
         center_x: float = 0.0,
         center_y: float = 0.0,
         color: RGBA = (255, 255, 255, 255),
@@ -27,15 +28,7 @@ class SimpleSprite:
         self._color: RGBA = color
         self._angle = angle
         self._scale: Tuple[float, float] = (scale_x, scale_y)
-
-        if isinstance(texture_or_path, str):
-            self._texture = load_texture(texture_or_path)
-        elif isinstance(texture_or_path, Texture):
-            self._texture = texture_or_path
-        else:
-            raise ValueError(
-                "Value passed to SimpleSprite must be either a Texture or filepath string"
-            )
+        self._texture = texture
 
         self._width = self._texture.width * self._scale[0]
         self._height = self._texture.height * self._scale[1]
@@ -43,8 +36,7 @@ class SimpleSprite:
         self.sprite_lists: List["SpriteList"] = []
         self._sprite_list: Optional["SpriteList"] = None  # Used for SimpleSprite.draw()
 
-    @property
-    def position(self) -> Point:
+    def _get_position(self) -> Point:
         """
         Get the center x and y coordinates of the sprite.
 
@@ -53,8 +45,7 @@ class SimpleSprite:
         """
         return self._position
 
-    @position.setter
-    def position(self, new_value: Point):
+    def _set_position(self, new_value: Point):
         """
         Set the center x and y coordinates of the sprite.
 
@@ -68,8 +59,9 @@ class SimpleSprite:
         for sprite_list in self.sprite_lists:
             sprite_list.update_location(self)
 
-    @property
-    def center_x(self) -> float:
+    position = property(_get_position, _set_position)
+
+    def _get_center_x(self) -> float:
         """
         Get the center x coordinate of the sprite.
 
@@ -78,8 +70,7 @@ class SimpleSprite:
         """
         return self._position[0]
 
-    @center_x.setter
-    def center_x(self, new_value: float):
+    def _set_center_x(self, new_value: float):
         """
         Set the center x coordinate of the sprite.
 
@@ -93,8 +84,9 @@ class SimpleSprite:
         for sprite_list in self.sprite_lists:
             sprite_list.update_location(self)
 
-    @property
-    def center_y(self) -> float:
+    center_x = property(_get_center_x, _set_center_x)
+
+    def _get_center_y(self) -> float:
         """
         Get the center y coordinate of the sprite.
 
@@ -103,8 +95,7 @@ class SimpleSprite:
         """
         return self._position[0]
 
-    @center_x.setter
-    def center_y(self, new_value: float):
+    def _set_center_y(self, new_value: float):
         """
         Set the center y coordinate of the sprite.
 
@@ -118,8 +109,9 @@ class SimpleSprite:
         for sprite_list in self.sprite_lists:
             sprite_list.update_location(self)
 
-    @property
-    def scale(self) -> Tuple[float, float]:
+    center_y = property(_get_center_y, _set_center_y)
+
+    def _get_scale(self) -> Tuple[float, float]:
         """
         Get the x and y scale values for the Sprite
 
@@ -128,8 +120,7 @@ class SimpleSprite:
         """
         return self._scale
 
-    @scale.setter
-    def scale(self, new_value: Tuple[float, float]):
+    def _set_scale(self, new_value: Tuple[float, float]):
         """
         Set the x and y scale values of the sprite.
 
@@ -145,8 +136,9 @@ class SimpleSprite:
         for sprite_list in self.sprite_lists:
             sprite_list.update_size(self)
 
-    @property
-    def scale_x(self) -> float:
+    scale = property(_get_scale, _set_scale)
+
+    def _get_scale_x(self) -> float:
         """
         Get the x scale value for the Sprite
 
@@ -155,8 +147,7 @@ class SimpleSprite:
         """
         return self._scale[0]
 
-    @scale_x.setter
-    def scale_x(self, new_value: float):
+    def _set_scale_x(self, new_value: float):
         """
         Set the x scale value for the Sprite
 
@@ -171,8 +162,9 @@ class SimpleSprite:
         for sprite_list in self.sprite_lists:
             sprite_list.update_size(self)
 
-    @property
-    def scale_y(self) -> float:
+    scale_x = property(_get_scale_x, _set_scale_x)
+
+    def _get_scale_y(self) -> float:
         """
         Get the y scale value for the Sprite
 
@@ -181,8 +173,7 @@ class SimpleSprite:
         """
         return self._scale[1]
 
-    @scale_y.setter
-    def scale_y(self, new_value: float):
+    def _set_scale_y(self, new_value: float):
         """
         Set the y scale value for the Sprite
 
@@ -197,13 +188,13 @@ class SimpleSprite:
         for sprite_list in self.sprite_lists:
             sprite_list.update_size(self)
 
-    @property
-    def angle(self) -> float:
+    scale_y = property(_get_scale_y, _set_scale_y)
+
+    def _get_angle(self) -> float:
         """Get the angle of the sprite's rotation."""
         return self._angle
 
-    @angle.setter
-    def angle(self, new_value: float):
+    def _set_angle(self, new_value: float):
         if new_value == self._angle:
             return
 
@@ -212,8 +203,9 @@ class SimpleSprite:
         for sprite_list in self.sprite_lists:
             sprite_list.update_angle(self)
 
-    @property
-    def color(self) -> RGBA:
+    angle = property(_get_angle, _set_angle)
+
+    def _get_color(self) -> RGBA:
         """
         Get the RGBA color associated with the sprite
 
@@ -222,8 +214,7 @@ class SimpleSprite:
         """
         return self._color
 
-    @color.setter
-    def color(self, new_value: RGBA):
+    def _set_color(self, new_value: RGBA):
         """
         Set the RGB or RGBA color associated with the sprite
 
@@ -243,13 +234,13 @@ class SimpleSprite:
         for sprite_list in self.sprite_lists:
             sprite_list.update_color(self)
 
-    @property
-    def alpha(self) -> int:
+    color = property(_get_color, _set_color)
+
+    def _get_alpha(self) -> int:
         """Return the alpha of the sprite"""
         return self._color[3]
 
-    @alpha.setter
-    def alpha(self, new_value: int):
+    def _set_alpha(self, new_value: int):
         """
         Set the alpha value of the sprite.
 
@@ -264,12 +255,12 @@ class SimpleSprite:
         for sprite_list in self.sprite_lists:
             sprite_list.update_color(self)
 
-    @property
-    def texture(self) -> Texture:
+    alpha = property(_get_alpha, _set_alpha)
+
+    def _get_texture(self) -> Texture:
         return self._texture
 
-    @texture.setter
-    def texture(self, texture: Texture):
+    def _set_texture(self, texture: Texture):
         if texture == self._texture:
             return
 
@@ -279,6 +270,8 @@ class SimpleSprite:
 
         for sprite_list in self.sprite_lists:
             sprite_list.update_texture(self)
+
+    texture = property(_get_texture, _set_texture)
 
     def register_sprite_list(self, new_list: "SpriteList") -> None:
         self.sprite_lists.append(new_list)
@@ -307,6 +300,3 @@ class SimpleSprite:
                 sprite_list.remove(self)
 
         self.sprite_lists.clear()
-
-    def kill(self) -> None:
-        self.remove_from_sprite_lists
