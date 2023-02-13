@@ -93,7 +93,7 @@ class SimpleSprite:
         Returns:
             center_y
         """
-        return self._position[0]
+        return self._position[1]
 
     def _set_center_y(self, new_value: float):
         """
@@ -272,6 +272,38 @@ class SimpleSprite:
             sprite_list.update_texture(self)
 
     texture = property(_get_texture, _set_texture)
+
+    def _get_top(self) -> float:
+        return self.center_y + (self._height / 2)
+
+    def _set_top(self, new_value: float):
+        self.center_y += new_value - self.top
+
+    top = property(_get_top, _set_top)
+
+    def _get_bottom(self) -> float:
+        return self.center_y - (self._height / 2)
+
+    def _set_bottom(self, new_value: float):
+        self.center_y += new_value - self.bottom
+
+    bottom = property(_get_bottom, _set_bottom)
+
+    def _get_left(self) -> float:
+        return self.center_x - (self._width / 2)
+
+    def _set_left(self, new_value: float):
+        self.center_x += new_value - self.left
+
+    left = property(_get_left, _set_left)
+
+    def _get_right(self) -> float:
+        return self.center_x + (self._width / 2)
+
+    def _set_right(self, new_value: float):
+        self.center_x += new_value - self.right
+
+    right = property(_get_right, _set_right)
 
     def register_sprite_list(self, new_list: "SpriteList") -> None:
         self.sprite_lists.append(new_list)
