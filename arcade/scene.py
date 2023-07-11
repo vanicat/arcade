@@ -10,11 +10,12 @@ It allows you to do the following:
 * Control sprite list draw order within the group
 """
 
-from typing import Dict, List, Optional, Union, Iterable, Tuple
+from typing import Dict, List, Optional, Union, Iterable, Tuple, TYPE_CHECKING
 
 from arcade import Sprite, SpriteList
 from arcade.types import Color, RGBA255
-from arcade.tilemap import TileMap
+if TYPE_CHECKING:
+    from arcade.tilemap import TileMap
 
 from warnings import warn
 
@@ -102,7 +103,7 @@ class Scene:
             self.remove_sprite_list_by_object(sprite_list)
 
     @classmethod
-    def from_tilemap(cls, tilemap: TileMap) -> "Scene":
+    def from_tilemap(cls, tilemap: "TileMap") -> "Scene":
         """
         Create a new Scene from a :py:class:`~arcade.tilemap.TileMap` object.
 
