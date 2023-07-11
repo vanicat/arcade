@@ -91,22 +91,22 @@
          "name":"Text",
          "objects":[
                 {
-                 "height":120.576,
+                 "height":120,
                  "id":10,
                  "name":"",
                  "rotation":0,
                  "text":
                     {
-                     "fontfamily":"Sans Serif",
+                     "fontfamily":"Arial",
                      "pixelsize":64,
                      "text":"Hello World",
                      "wrap":true
                     },
                  "type":"",
                  "visible":true,
-                 "width":426.979,
-                 "x":836.621,
-                 "y":89.0878
+                 "width":428,
+                 "x":836,
+                 "y":89
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -195,10 +195,10 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":13,
+ "nextobjectid":17,
  "orientation":"orthogonal",
  "renderorder":"right-down",
- "tiledversion":"1.7.0",
+ "tiledversion":"1.10.1",
  "tileheight":128,
  "tilesets":[
         {
@@ -207,6 +207,6 @@
         }],
  "tilewidth":128,
  "type":"map",
- "version":"1.6",
+ "version":"1.10",
  "width":20
 }

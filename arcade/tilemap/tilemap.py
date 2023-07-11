@@ -29,7 +29,7 @@ from arcade.hitbox import HitBoxAlgorithm, RotatableHitBox
 from arcade.texture.loading import _load_tilemap_texture
 
 if TYPE_CHECKING:
-    from arcade import TextureAtlas
+    from arcade import TextureAtlas, Text
 
 from pyglet.math import Vec2
 
@@ -180,7 +180,7 @@ class TileMap:
     sprite_lists: Dict[str, SpriteList]
     """A dictionary mapping SpriteLists to their layer names. This is used
                     for all tile layers of the map."""
-    object_lists: Dict[str, List[TiledObject]]
+    object_lists: Dict[str, List["TiledObject|Text"]]
     """
     A dictionary mapping TiledObjects to their layer names. This is used
     for all object layers of the map.
@@ -243,7 +243,7 @@ class TileMap:
 
         # Dictionaries to store the SpriteLists for processed layers
         self.sprite_lists: Dict[str, SpriteList] = OrderedDict()
-        self.object_lists: Dict[str, List[TiledObject]] = OrderedDict()
+        self.object_lists: Dict[str, List["TiledObject|Text"]] = OrderedDict()
         self.properties = self.tiled_map.properties
 
         global_options = {  # type: ignore
@@ -271,7 +271,7 @@ class TileMap:
         layer_options: Optional[Dict[str, Dict[str, Any]]] = None,
     ) -> None:
         processed: Union[
-            SpriteList, Tuple[Optional[SpriteList], Optional[List[TiledObject]]]
+            SpriteList, Tuple[Optional[SpriteList], Optional[List["TiledObject|Text"]]]
         ]
 
         options = global_options
@@ -814,12 +814,12 @@ class TileMap:
         offset: Vec2 = Vec2(0, 0),
         custom_class: Optional[type] = None,
         custom_class_args: Dict[str, Any] = {},
-    ) -> Tuple[Optional[SpriteList], Optional[List[TiledObject]]]:
+    ) -> Tuple[Optional[SpriteList], Optional[List["TiledObject|Text"]]]:
         if not scaling:
             scaling = self.scaling
 
         sprite_list: Optional[SpriteList] = None
-        objects_list: Optional[List[TiledObject]] = []
+        objects_list: Optional[List["TiledObject|Text"]] = []
 
         shape: Union[List[Point], Rect, Point, None] = None
 
@@ -986,7 +986,26 @@ class TileMap:
                     point = (x + offset[0], y + offset[1])
                     points.append(point)
             elif isinstance(cur_object, pytiled_parser.tiled_object.Text):
-                pass
+                sx = cur_object.coordinates.x * scaling + offset[0]
+                sy = (
+                    self.tiled_map.map_size.height * self.tiled_map.tile_size[1]
+                    - cur_object.coordinates.y
+                ) * scaling + offset[1]
+
+                width = cur_object.size.width * scaling
+                height = cur_object.size.height * scaling
+                from arcade import Text
+                txt = Text(cur_object.text, start_x=int(sx), start_y=int(sy), width=int(width),
+                           anchor_x="left", anchor_y="top",
+                           align=cur_object.horizontal_align, 
+                           color=cur_object.color,
+                           font_size=cur_object.font_size * scaling,
+                           font_name=cur_object.font_family,
+                           bold=cur_object.bold,
+                           italic=cur_object.italic,
+                           multiline=cur_object.wrap,
+                           rotation=cur_object.rotation)
+                objects_list.append(txt)
             else:
                 continue
 

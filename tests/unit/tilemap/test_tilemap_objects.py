@@ -1,5 +1,6 @@
 from math import isclose
 import arcade
+from arcade import Text
 from pytiled_parser.common_types import Color
 
 #
@@ -8,7 +9,7 @@ from pytiled_parser.common_types import Color
 #
 
 
-def test_one():
+def test_one(window):
     tile_map = arcade.load_tilemap(":resources:/tiled_maps/test_objects.json")
 
     assert tile_map.width == 20
@@ -41,6 +42,14 @@ def test_one():
     assert isclose(rectangle.shape[0][1] - rectangle.shape[2][1], 469.04, abs_tol=0.02)
     assert isclose(tile_map.tiled_map.map_size.height * tile_map.tiled_map.tile_size[1] - rectangle.shape[0][1], 630.37, abs_tol=0.02)
 
+    assert "Text" in tile_map.object_lists
+    assert len(tile_map.object_lists["Text"]) == 1
+    text = tile_map.object_lists["Text"][0]
+    assert isinstance(text, Text)
+    assert text.text == "Hello World"
+    assert text.top == 20 * 128 - 89
+    assert text.left == 836
+    assert text.right <= 836 + 428
     # #
     # # Test getting layer in group
     # #
