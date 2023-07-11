@@ -588,7 +588,7 @@ def create_text_sprite(
     italic: bool = False,
     anchor_x: str = "left",
     multiline: bool = False,
-    texture_atlas: Optional[arcade.TextureAtlas] = None,
+    texture_atlas: Optional["arcade.TextureAtlas"] = None,
 ) -> arcade.Sprite:
     """
     Creates a sprite containing text based off of :py:class:`~arcade.Text`.
