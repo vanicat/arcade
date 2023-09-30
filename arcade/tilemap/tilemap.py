@@ -101,6 +101,14 @@ def _get_image_source(
     print(f"Warning, can't find image {image_file} for tile {tile.id}")
     return None
 
+def _may_be_flip(tile, texture):
+        if tile.flipped_diagonally:
+            texture = texture.flip_diagonally()
+        if tile.flipped_horizontally:
+            texture = texture.flip_horizontally()
+        if tile.flipped_vertically:
+            texture = texture.flip_vertically()
+        return texture
 
 class TileMap:
     """
@@ -466,12 +474,7 @@ class TileMap:
                 height=height,
                 hit_box_algorithm=hit_box_algorithm,
             )
-            if tile.flipped_diagonally:
-                texture = texture.flip_diagonally()
-            if tile.flipped_horizontally:
-                texture = texture.flip_horizontally()
-            if tile.flipped_vertically:
-                texture = texture.flip_vertically()
+            texture = _may_be_flip(tile, texture)
 
             args = {
                 "path_or_texture": texture,  # type: ignore
@@ -624,6 +627,8 @@ class TileMap:
                             f"Warning: failed to load image for animation frame for "
                             f"tile '{frame_tile.id}', '{image_file}'."
                         )
+                    
+                    texture = _may_be_flip(tile, texture)
 
                     key_frame = AnimationKeyframe(  # type: ignore
                         frame.tile_id, frame.duration, texture
