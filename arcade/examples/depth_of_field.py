@@ -3,8 +3,9 @@
 It uses the depth attribute of along with blurring and shaders to
 roughly approximate depth-based blur effects. The focus bounces
 back forth automatically between a maximum and minimum depth value
-based on time. Adjust the arguments to the App class at the bottom
-of the file to change the speed.
+based on time. Change the speed and focus via either the constants
+at the top of the file or the arguments passed to it at the bottom of
+the file.
 
 This example works by doing the following for each frame:
 
@@ -17,7 +18,7 @@ This is more expensive than rendering the scene directly, but it's
 both easier and more performant than more accurate blur approaches.
 
 If Python and Arcade are installed, this example can be run from the command line with:
-python -m arcade.experimental.examples.array_backed_grid
+python -m arcade.examples.depth_of_field
 """
 
 from __future__ import annotations
@@ -30,11 +31,19 @@ from typing import cast
 
 from pyglet.graphics import Batch
 
-from arcade import SpriteList, SpriteSolidColor, Text, Window, get_window
+import arcade
+from arcade import get_window, SpriteList, SpriteSolidColor, Text, Window, View
+from arcade.camera.data_types import DEFAULT_NEAR_ORTHO, DEFAULT_FAR
 from arcade.color import RED
 from arcade.experimental.postprocessing import GaussianBlur
 from arcade.gl import NEAREST, Program, Texture2D, geometry
 from arcade.types import RGBA255, Color
+
+WINDOW_TITLE = "Depth of Field Example"
+
+WINDOW_WIDTH = 1280
+WINDOW_HEIGHT = 720
+BACKGROUND_GRAY = Color(155, 155, 155, 255)
 
 
 class DepthOfField:
@@ -50,7 +59,7 @@ class DepthOfField:
     def __init__(
         self,
         size: tuple[int, int] | None = None,
-        clear_color: RGBA255 = (155, 155, 155, 255),
+        clear_color: RGBA255 = BACKGROUND_GRAY
     ):
         self._geo = geometry.quad_2d_fs()
         self._win: Window = get_window()
@@ -171,8 +180,12 @@ class DepthOfField:
         self._geo.render(self._render_program)
 
 
-class App(Window):
+class GameView(View):
     """Window subclass to hold sprites and rendering helpers.
+
+    To keep the code simpler, this example uses a default camera. That means
+    that any sprite outside Arcade's default camera near and far render cutoffs
+    (``-100.0`` to ``100.0``) will not be drawn.
 
     Args:
         text_color:
@@ -182,6 +195,10 @@ class App(Window):
         focus_change_speed:
             How fast the focus bounces back and forth
             between the ``-focus_range`` and ``focus_range``.
+        min_sprite_depth:
+            The minimum sprite depth we'll generate sprites between
+         max_sprite_depth:
+            The maximum sprite depth we'll generate sprites between.
     """
 
     def __init__(
@@ -189,6 +206,8 @@ class App(Window):
         text_color: RGBA255 = RED,
         focus_range: float = 16.0,
         focus_change_speed: float = 0.1,
+        min_sprite_depth: float = DEFAULT_NEAR_ORTHO,
+        max_sprite_depth: float = DEFAULT_FAR
     ):
         super().__init__()
         self.sprites: SpriteList = SpriteList()
@@ -207,7 +226,7 @@ class App(Window):
 
         # Randomize sprite depth, size, and angle, but set color from depth.
         for _ in range(100):
-            depth = uniform(-100, 100)
+            depth = uniform(min_sprite_depth, max_sprite_depth)
             color = Color.from_gray(int(255 * (depth + 100) / 200))
             s = SpriteSolidColor(
                 randint(100, 200),
@@ -223,7 +242,8 @@ class App(Window):
         self.dof = DepthOfField()
 
     def on_update(self, delta_time: float):
-        raw_focus = self.focus_range * (cos(pi * self.focus_change_speed * self.time) * 0.5 + 0.5)
+        time = self.window.time
+        raw_focus = self.focus_range * (cos(pi * self.focus_change_speed * time) * 0.5 + 0.5)
         self.dof.render_program["focus_depth"] = raw_focus / self.focus_range
         self.indicator_label.value = f"Focus depth: {raw_focus:.3f} / {self.focus_range}"
 
@@ -235,10 +255,25 @@ class App(Window):
             self.sprites.draw(pixelated=True)
 
         # Draw the blurred frame buffer and then the focus display
-        self.use()
+        window = self.window
+        window.use()
         self.dof.render()
         self._batch.draw()
 
 
+def main():
+    # Create a Window to show the view defined above.
+    window = arcade.Window(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
+
+    # Create the view
+    app = GameView()
+
+    # Show GameView on screen
+    window.show_view(app)
+
+    # Start the arcade game loop
+    window.run()
+
+
 if __name__ == "__main__":
-    App().run()
+    main()
